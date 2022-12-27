@@ -1,53 +1,22 @@
-// Copyright 2013 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-// TODO(goderbauer): Refactor the examples to remove this ignore, https://github.com/flutter/flutter/issues/110210
-// ignore_for_file: avoid_dynamic_calls
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// This scenario demonstrates how to use path parameters and query parameters.
-//
-// The route segments that start with ':' are treated as path parameters when
-// defining GoRoute[s]. The parameter values can be accessed through
-// GoRouterState.params.
-//
-// The query parameters are automatically stored in GoRouterState.queryParams.
-
-final Map<String, dynamic> _families = const JsonDecoder().convert('''
-{
+final Map<String, dynamic> _families = {
   "f1": {
     "name": "Doe",
     "people": {
-      "p1": {
-        "name": "Jane",
-        "age": 23
-      },
-      "p2": {
-        "name": "John",
-        "age": 6
-      }
+      "p1": {"name": "Jane", "age": 23},
+      "p2": {"name": "John", "age": 6}
     }
   },
   "f2": {
     "name": "Wong",
     "people": {
-      "p1": {
-        "name": "June",
-        "age": 51
-      },
-      "p2": {
-        "name": "Xin",
-        "age": 44
-      }
+      "p1": {"name": "June", "age": 51},
+      "p2": {"name": "Xin", "age": 44}
     }
   }
-}
-''');
+};
 
 void main() => runApp(App());
 
@@ -62,19 +31,25 @@ class App extends StatelessWidget {
   // add the login info into the tree as app state that can change over time
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-        routeInformationProvider: _router.routeInformationProvider,
-        routeInformationParser: _router.routeInformationParser,
-        routerDelegate: _router.routerDelegate,
+        routerConfig: _router,
         title: title,
         debugShowCheckedModeBanner: false,
       );
 
   late final GoRouter _router = GoRouter(
+    initialLocation: '/',
+    redirect: (context, state) {
+      print('Subloc: ${state.subloc}');
+      return null;
+    },
+    debugLogDiagnostics: true,
+    routerNeglect: true,
     routes: <GoRoute>[
       GoRoute(
         path: '/',
-        builder: (BuildContext context, GoRouterState state) =>
-            const HomeScreen(),
+        builder: (BuildContext context, GoRouterState state) {
+          return const HomeScreen();
+        },
         routes: <GoRoute>[
           GoRoute(
               name: 'family',
@@ -100,6 +75,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(App.title),
       ),
       body: ListView(
@@ -107,7 +83,13 @@ class HomeScreen extends StatelessWidget {
           for (final String fid in _families.keys)
             ListTile(
               title: Text(_families[fid]['name']),
-              onTap: () => context.go('/family/$fid'),
+              onTap: () {
+                context.goNamed(
+                  'family',
+                  params: {'fid': fid},
+                  queryParams: {'sort': 'asc'},
+                );
+              },
             )
         ],
       ),
@@ -143,10 +125,18 @@ class FamilyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(_families[fid]['name']),
+        leading: BackButton(
+          onPressed: () {
+            GoRouter.of(context).pop();
+          },
+        ),
         actions: <Widget>[
           IconButton(
-            onPressed: () => context.goNamed('family',
-                params: <String, String>{'fid': fid}, queryParams: newQueries),
+            onPressed: () {
+              context.goNamed('family',
+                  params: <String, String>{'fid': fid},
+                  queryParams: newQueries);
+            },
             tooltip: 'sort ascending or descending',
             icon: const Icon(Icons.sort),
           )

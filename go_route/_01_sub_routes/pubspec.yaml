@@ -1,6 +1,6 @@
-name: sub_routes (GoRoute-project_04)
+name: sub_routes
 description: This project is a part of the go_route series.
-homepage: https://github.com/rahulsharmadev-community/youtube-tutorials/tree/master/project_04--go_route
+homepage: https://github.com/rahulsharmadev-community/youtube-tutorials/tree/FlutterTuts/project_04--go_route
 
 publish_to: "none"
 
@@ -21,6 +21,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  assets:
-    - assets/audio/

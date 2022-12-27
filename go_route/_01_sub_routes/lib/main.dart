@@ -1,59 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_web_plugins/url_strategy.dart' show usePathUrlStrategy;
 
 // This scenario demonstrates an app with multi-level routing.
 //
 // The GoRoute '/' builds a HomeScreen page and has a sub-route, 'family'. The
 // 'family' also has its own sub-route, person'.
 //
-void main() => runApp(App());
+void main() {
+  // handle the browser URL. (remove # form url)
+  usePathUrlStrategy();
+  runApp(App());
+}
 
 /// The main app.
 class App extends StatelessWidget {
-  /// Creates an [App].
   App({Key? key}) : super(key: key);
 
-  /// The title of the app.
   static const String title = 'GoRouter Example: Sub-routes';
 
   @override
-  Widget build(BuildContext context) => MaterialApp.router(
-        routeInformationProvider: _router.routeInformationProvider,
-        routeInformationParser: _router.routeInformationParser,
-        routerDelegate: _router.routerDelegate,
-        title: title,
-      );
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: title,
 
-  final GoRouter _router = GoRouter(
-    // use path url strategy eg. https://xyz.com/family/person
-    urlPathStrategy: UrlPathStrategy.path,
-    routes: <GoRoute>[
-      GoRoute(
-        path: '/',
-        builder: (BuildContext context, GoRouterState state) =>
-            const HomeScreen(),
-        routes: <GoRoute>[
+      //  routerConfig:  _router,
+      //  or (any one)
+      routeInformationParser: _router.routeInformationParser,
+      routeInformationProvider: _router.routeInformationProvider,
+      routerDelegate: _router.routerDelegate,
+    );
+  }
+
+  final _router = GoRouter(initialLocation: '/', routes: [
+    GoRoute(
+        path: '/', // root path or entry point  ______https://xyz/
+        builder: (context, state) => const HomeScreen(),
+        routes: [
           GoRoute(
-            path: 'family',
-            builder: (BuildContext context, GoRouterState state) =>
-                const FamilyScreen(),
-            routes: <GoRoute>[
-              GoRoute(
-                path: 'person',
-                builder: (BuildContext context, GoRouterState state) =>
-                    const PersonScreen(),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ],
-  );
+              path: 'family', // child of root path  ______https://xyz/family
+              builder: (context, state) => const FamilyScreen(),
+              routes: [
+                GoRoute(
+                  path:
+                      'person', // child of family path ______https://xyz/family/person
+                  builder: (context, state) => const PersonScreen(),
+                )
+              ])
+        ])
+  ]);
 }
 
 /// The home screen that shows a list of families.
 class HomeScreen extends StatelessWidget {
-  /// Creates a [HomeScreen].
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
@@ -70,7 +70,6 @@ class HomeScreen extends StatelessWidget {
 
 /// The screen that shows a list of persons in a family.
 class FamilyScreen extends StatelessWidget {
-  /// Creates a [FamilyScreen].
   const FamilyScreen({Key? key}) : super(key: key);
 
   @override
@@ -87,7 +86,6 @@ class FamilyScreen extends StatelessWidget {
 
 /// The person screen.
 class PersonScreen extends StatelessWidget {
-  /// Creates a [PersonScreen].
   const PersonScreen({Key? key}) : super(key: key);
 
   @override
